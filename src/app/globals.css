@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+}
+
+/* Custom global styles & utility classes */
+body {
+  font-family: var(--font-sans);
+}
+
+/* Custom print styles for the thermal receipt simulation */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-receipt-section, #print-receipt-section * {
+    visibility: visible;
+  }
+  #print-receipt-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

@@ -1,0 +1,159 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  CASHIER
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(CASHIER)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  orders        Order[]
+  inventoryLogs InventoryLog[]
+
+  @@map("users")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  icon     String?
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id            Int            @id @default(autoincrement())
+  name          String
+  sku           String         @unique
+  price         Decimal        @db.Decimal(10, 2)
+  cost          Decimal        @db.Decimal(10, 2)
+  stock         Int            @default(0)
+  minStock      Int            @default(5) @map("min_stock")
+  image         String?
+  categoryId    Int            @map("category_id")
+  category      Category       @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  inventoryLogs InventoryLog[]
+
+  @@map("products")
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?  @unique
+  email     String?
+  address   String?
+  points    Int      @default(0)
+  orders    Order[]
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("customers")
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  QR_CODE
+  BANK_TRANSFER
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+  CANCELLED
+}
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  orderNumber   String        @unique @map("order_number")
+  userId        Int           @map("user_id")
+  customerId    Int?          @map("customer_id")
+  user          User          @relation(fields: [userId], references: [id])
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  items         OrderItem[]
+  subtotal      Decimal       @db.Decimal(10, 2)
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  tax           Decimal       @default(0) @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod @map("payment_method")
+  amountPaid    Decimal       @db.Decimal(10, 2) @map("amount_paid")
+  change        Decimal       @db.Decimal(10, 2)
+  status        OrderStatus   @default(COMPLETED)
+  note          String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  productId Int     @map("product_id")
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  contact   String?
+  phone     String?
+  email     String?
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("suppliers")
+}
+
+model InventoryLog {
+  id        Int      @id @default(autoincrement())
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+  type      String
+  quantity  Int
+  beforeQty Int?     @map("before_qty")
+  afterQty  Int?     @map("after_qty")
+  note      String?
+  userId    Int?     @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("inventory_logs")
+}
+
+model Discount {
+  id          Int       @id @default(autoincrement())
+  name        String?
+  type        String
+  value       Decimal   @db.Decimal(10, 2)
+  minPurchase Decimal   @db.Decimal(10, 2) @map("min_purchase")
+  startDate   DateTime? @db.Date @map("start_date")
+  endDate     DateTime? @db.Date @map("end_date")
+  isActive    Boolean   @default(true) @map("is_active")
+
+  @@map("discounts")
+}
