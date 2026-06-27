@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Tags,
+  UserCog,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -52,6 +54,12 @@ export default function Sidebar() {
       roles: ["ADMIN", "MANAGER"],
     },
     {
+      name: "Categories",
+      href: "/categories",
+      icon: Tags,
+      roles: ["ADMIN", "MANAGER"],
+    },
+    {
       name: "Inventory",
       href: "/inventory",
       icon: Warehouse,
@@ -74,6 +82,12 @@ export default function Sidebar() {
       href: "/suppliers",
       icon: Truck,
       roles: ["ADMIN", "MANAGER"],
+    },
+    {
+      name: "Users",
+      href: "/users",
+      icon: UserCog,
+      roles: ["ADMIN"],
     },
     {
       name: "Reports",

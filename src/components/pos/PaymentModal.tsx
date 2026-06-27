@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { X, CreditCard, Banknote, QrCode, ArrowRightLeft, Loader2, StickyNote } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -18,6 +19,9 @@ export default function PaymentModal({ onClose, onPaymentSuccess }: PaymentModal
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const [khqrString, setKhqrString] = useState<string | null>(null);
+  const [khqrLoading, setKhqrLoading] = useState(false);
 
   const amountInputRef = useRef<HTMLInputElement>(null);
 
@@ -30,6 +34,28 @@ export default function PaymentModal({ onClose, onPaymentSuccess }: PaymentModal
       setAmountPaid(total.toFixed(2));
     }
   }, [paymentMethod, total]);
+
+  // Generate KHQR when QR Scan is selected
+  useEffect(() => {
+    if (paymentMethod === "QR_CODE" && !khqrString) {
+      setKhqrLoading(true);
+      fetch("/api/khqr", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.qrString) {
+            setKhqrString(data.qrString);
+          } else {
+            setError(data.error || "Failed to generate KHQR");
+          }
+        })
+        .catch((err) => setError(err.message))
+        .finally(() => setKhqrLoading(false));
+    }
+  }, [paymentMethod, total, khqrString]);
 
   const numAmountPaid = parseFloat(amountPaid) || 0;
   const change = Math.max(0, numAmountPaid - total);
@@ -205,6 +231,32 @@ export default function PaymentModal({ onClose, onPaymentSuccess }: PaymentModal
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* KHQR Display */}
+          {paymentMethod === "QR_CODE" && (
+            <div className="flex flex-col items-center justify-center p-6 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950">
+              <h4 className="font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                <QrCode size={18} />
+                Scan to Pay (KHQR)
+              </h4>
+              {khqrLoading ? (
+                <div className="h-48 w-48 flex items-center justify-center">
+                  <Loader2 className="animate-spin text-indigo-500" size={32} />
+                </div>
+              ) : khqrString ? (
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                  <QRCodeSVG value={khqrString} size={200} level="M" />
+                </div>
+              ) : (
+                <div className="h-48 w-48 flex items-center justify-center text-rose-500 text-sm text-center">
+                  Failed to generate KHQR code.
+                </div>
+              )}
+              <p className="mt-4 text-xs text-slate-500 text-center">
+                Use any supported Cambodian banking app (Bakong, ABA, ACLEDA, etc.) to scan this QR code.
+              </p>
             </div>
           )}
 
