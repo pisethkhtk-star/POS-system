@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ClipboardList, Search, ChevronDown, Eye, X, Loader2, Package } from "lucide-react";
+import { ClipboardList, Search, ChevronDown, Eye, X, Loader2, Package, Download } from "lucide-react";
 
 interface OrderItem { id: number; quantity: number; price: number; subtotal: number; product: { name: string; sku: string }; }
 interface Order {
@@ -46,6 +46,38 @@ export default function OrdersPage() {
 
   const totalRevenue = orders.filter(o => o.status === "COMPLETED").reduce((s, o) => s + Number(o.total), 0);
 
+  const exportToCSV = () => {
+    const headers = ["Order #", "Customer", "Cashier", "Payment Method", "Items Count", "Subtotal", "Discount", "Tax", "Total", "Status", "Date", "Note"];
+    const csvRows = [headers.join(",")];
+    
+    orders.forEach(o => {
+      const row = [
+        o.orderNumber,
+        `"${o.customer?.name || 'Walk-in'}"`,
+        `"${o.user.name}"`,
+        o.paymentMethod.replace("_", " "),
+        o.items.length,
+        o.subtotal,
+        o.discount,
+        o.tax,
+        o.total,
+        o.status,
+        new Date(o.createdAt).toLocaleDateString(),
+        `"${(o.note || "").replace(/"/g, '""')}"`
+      ];
+      csvRows.push(row.join(","));
+    });
+    
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `orders_export_${new Date().getTime()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -57,6 +89,10 @@ export default function OrdersPage() {
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">{orders.length} orders · Revenue: ${totalRevenue.toFixed(2)}</p>
         </div>
+        <button onClick={exportToCSV} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+          <Download size={16} />
+          Export Excel
+        </button>
       </div>
 
       {/* Filters */}

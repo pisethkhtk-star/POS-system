@@ -13,6 +13,14 @@ export default function Receipt({ order, settings, onClose }: ReceiptProps) {
   if (!order) return null;
 
   const handlePrint = () => {
+    // Send to telegram asynchronously
+    fetch('/api/telegram/send-receipt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order, settings })
+    }).catch(err => console.error("Failed to send telegram receipt", err));
+
+    // Open print dialog
     window.print();
   };
 
