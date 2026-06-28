@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
-import { Search, Loader2, RefreshCw, Layers } from "lucide-react";
+import { Search, Loader2, RefreshCw, Layers, Image as ImageIcon } from "lucide-react";
 
 export default function ProductGrid() {
   const addItem = useCartStore((state) => state.addItem);
@@ -156,8 +156,20 @@ export default function ProductGrid() {
                     {isOutOfStock ? "OUT" : `${product.stock} left`}
                   </span>
 
+                  {/* Product Image */}
+                  <div className="h-32 w-full bg-slate-100 dark:bg-slate-800 relative overflow-hidden flex-shrink-0">
+                    {product.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600">
+                        <ImageIcon size={32} className="opacity-40" />
+                      </div>
+                    )}
+                  </div>
+
                   {/* Product body */}
-                  <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div className="p-3 flex-1 flex flex-col justify-between">
                     <div>
                       <p className="text-xs font-semibold text-slate-400 tracking-wider mb-0.5 truncate uppercase">
                         {product.sku}

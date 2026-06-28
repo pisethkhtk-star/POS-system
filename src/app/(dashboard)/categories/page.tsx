@@ -5,9 +5,9 @@ import { Tags, Plus, Search, Loader2, X, Package, Pencil, Trash2 } from "lucide-
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 
-interface Category { id: number; name: string; icon: string | null; _count?: { products: number } }
+interface Category { id: number; name: string; _count?: { products: number } }
 
-const emptyForm = { name: "", icon: "" };
+const emptyForm = { name: "" };
 
 export default function CategoriesPage() {
   const { user } = useAuthStore();
@@ -42,7 +42,7 @@ export default function CategoriesPage() {
   
   const openEdit = (c: Category) => {
     setEditing(c);
-    setForm({ name: c.name, icon: c.icon || "" });
+    setForm({ name: c.name });
     setError(""); setShowModal(true);
   };
 
@@ -50,7 +50,7 @@ export default function CategoriesPage() {
     e.preventDefault(); setSaving(true); setError("");
     const url = editing ? `/api/categories/${editing.id}` : "/api/categories";
     const method = editing ? "PUT" : "POST";
-    const body = { name: form.name, icon: form.icon || null };
+    const body = { name: form.name };
     const res = await fetch(url, { 
       method, 
       headers: { "Content-Type": "application/json" }, 
@@ -107,8 +107,8 @@ export default function CategoriesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCategories.map(c => (
             <div key={c.id} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0 text-2xl">
-                {c.icon || <Package size={24} />}
+              <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+                <Tags size={24} />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{c.name}</h3>
@@ -137,12 +137,6 @@ export default function CategoriesPage() {
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Category Name *</label>
                 <input type="text" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
-              </div>
-              
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">Icon (Emoji or text)</label>
-                <input type="text" value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="e.g. 🍔, 🥤, 📦"
                   className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
               </div>
 

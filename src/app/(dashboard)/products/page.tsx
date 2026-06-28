@@ -25,6 +25,7 @@ export default function ProductsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -46,21 +47,39 @@ export default function ProductsPage() {
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
   useEffect(() => { fetchCategories(); }, []);
 
-  const openAdd = () => { setEditing(null); setForm(emptyForm); setError(""); setShowModal(true); };
+  const openAdd = () => { setEditing(null); setForm(emptyForm); setImageFile(null); setError(""); setShowModal(true); };
   const openEdit = (p: Product) => {
     setEditing(p);
+    setImageFile(null);
     setForm({ name: p.name, sku: p.sku, price: String(p.price), cost: String(p.cost), stock: String(p.stock), minStock: String(p.minStock), image: p.image || "", categoryId: String(p.categoryId) });
     setError(""); setShowModal(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError("");
-    const url = editing ? `/api/products/${editing.id}` : "/api/products";
-    const method = editing ? "PUT" : "POST";
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, price: parseFloat(form.price), cost: parseFloat(form.cost), stock: parseInt(form.stock), minStock: parseInt(form.minStock), categoryId: parseInt(form.categoryId) }) });
-    const data = await res.json();
-    if (!res.ok) { setError(data.error || "Failed to save"); setSaving(false); return; }
-    setShowModal(false); fetchProducts(); setSaving(false);
+    
+    try {
+      let imageUrl = form.image;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) { setError(uploadData.error || "Failed to upload image"); setSaving(false); return; }
+        imageUrl = uploadData.url;
+      }
+
+      const url = editing ? `/api/products/${editing.id}` : "/api/products";
+      const method = editing ? "PUT" : "POST";
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, image: imageUrl, price: parseFloat(form.price), cost: parseFloat(form.cost), stock: parseInt(form.stock), minStock: parseInt(form.minStock), categoryId: parseInt(form.categoryId) }) });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Failed to save"); setSaving(false); return; }
+      setShowModal(false); fetchProducts(); setSaving(false);
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred. Please try again.");
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -160,7 +179,7 @@ export default function ProductsPage() {
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {error && <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 rounded-xl text-sm">{error}</div>}
               <div className="grid grid-cols-2 gap-4">
-                {[{ label: "Product Name", key: "name", type: "text", full: true }, { label: "SKU", key: "sku", type: "text" }, { label: "Category", key: "categoryId", type: "select" }, { label: "Price ($)", key: "price", type: "number" }, { label: "Cost ($)", key: "cost", type: "number" }, { label: "Stock", key: "stock", type: "number" }, { label: "Min Stock", key: "minStock", type: "number" }, { label: "Image URL", key: "image", type: "text", full: true }].map(f => (
+                {[{ label: "Product Name", key: "name", type: "text", full: true }, { label: "SKU", key: "sku", type: "text" }, { label: "Category", key: "categoryId", type: "select" }, { label: "Price ($)", key: "price", type: "number" }, { label: "Cost ($)", key: "cost", type: "number" }, { label: "Stock", key: "stock", type: "number" }, { label: "Min Stock", key: "minStock", type: "number" }, { label: "Product Image", key: "image", type: "file", full: true }].map(f => (
                   <div key={f.key} className={f.full ? "col-span-2" : ""}>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">{f.label}</label>
                     {f.type === "select" ? (
@@ -169,6 +188,12 @@ export default function ProductsPage() {
                         <option value="">Select category</option>
                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </select>
+                    ) : f.type === "file" ? (
+                      <input type="file" accept="image/*" onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) setImageFile(file);
+                      }}
+                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
                     ) : (
                       <input type={f.type} required={f.key !== "image"} value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} step={f.type === "number" ? "0.01" : undefined}
                         className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />

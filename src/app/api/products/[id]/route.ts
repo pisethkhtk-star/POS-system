@@ -4,15 +4,16 @@ import { getAuthenticatedUser } from "@/lib/api-auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
     const product = await prisma.product.findUnique({
       where: { id },
       include: { category: true },
@@ -34,15 +35,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
     const { name, sku, price, cost, stock, minStock, image, categoryId } =
       await request.json();
 
@@ -122,15 +124,16 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
 
     // Delete product. Note: We must handle cascading if there are related items, 
     // but Prisma defaults to erroring out if there are related order items.

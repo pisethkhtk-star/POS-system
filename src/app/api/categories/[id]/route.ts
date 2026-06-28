@@ -4,15 +4,16 @@ import { getAuthenticatedUser } from "@/lib/api-auth";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
     const { name, icon } = await request.json();
 
     if (!name) {
@@ -59,15 +60,16 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
 
     const existingCategory = await prisma.category.findUnique({
       where: { id },

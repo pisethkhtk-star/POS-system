@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === "production") {
     globalForPrisma.pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
   }
   pool = globalForPrisma.pool;
-  if (!globalForPrisma.prisma) {
+  if (!globalForPrisma.prisma || !('purchase' in globalForPrisma.prisma)) {
     const adapter = new PrismaPg(pool);
     globalForPrisma.prisma = new PrismaClient({ adapter });
   }

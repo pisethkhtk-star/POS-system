@@ -22,6 +22,7 @@ model User {
   updatedAt     DateTime       @updatedAt @map("updated_at")
   orders        Order[]
   inventoryLogs InventoryLog[]
+  purchases     Purchase[]
 
   @@map("users")
 }
@@ -47,6 +48,7 @@ model Product {
   categoryId    Int            @map("category_id")
   category      Category       @relation(fields: [categoryId], references: [id])
   orderItems    OrderItem[]
+  purchaseItems PurchaseItem[]
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   inventoryLogs InventoryLog[]
@@ -117,13 +119,14 @@ model OrderItem {
 }
 
 model Supplier {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
   contact   String?
   phone     String?
   email     String?
   address   String?
-  createdAt DateTime @default(now()) @map("created_at")
+  purchases Purchase[]
+  createdAt DateTime   @default(now()) @map("created_at")
 
   @@map("suppliers")
 }
@@ -155,4 +158,32 @@ model Discount {
   isActive    Boolean   @default(true) @map("is_active")
 
   @@map("discounts")
+}
+
+model Purchase {
+  id          Int            @id @default(autoincrement())
+  reference   String         @unique
+  supplierId  Int            @map("supplier_id")
+  supplier    Supplier       @relation(fields: [supplierId], references: [id])
+  userId      Int            @map("user_id")
+  user        User           @relation(fields: [userId], references: [id])
+  items       PurchaseItem[]
+  totalAmount Decimal        @db.Decimal(10, 2) @map("total_amount")
+  note        String?
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id         Int      @id @default(autoincrement())
+  purchaseId Int      @map("purchase_id")
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId  Int      @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int
+  cost       Decimal  @db.Decimal(10, 2)
+  subtotal   Decimal  @db.Decimal(10, 2)
+
+  @@map("purchase_items")
 }

@@ -10,6 +10,7 @@ import {
   Calculator,
   ShoppingBag,
   Warehouse,
+  PackageCheck,
   ClipboardList,
   Users,
   Truck,
@@ -63,6 +64,12 @@ export default function Sidebar() {
       name: "Inventory",
       href: "/inventory",
       icon: Warehouse,
+      roles: ["ADMIN", "MANAGER"],
+    },
+    {
+      name: "Purchases",
+      href: "/purchases",
+      icon: PackageCheck,
       roles: ["ADMIN", "MANAGER"],
     },
     {

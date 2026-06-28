@@ -5,15 +5,16 @@ import bcrypt from "bcrypt";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden: Admin only" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
     const { name, email, password, role } = await request.json();
 
     const existingUser = await prisma.user.findUnique({
@@ -71,15 +72,16 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden: Admin only" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
 
     // Prevent deleting yourself
     if (id === user.id) {

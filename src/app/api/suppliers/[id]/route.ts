@@ -4,15 +4,16 @@ import { getAuthenticatedUser } from "@/lib/api-auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
     const supplier = await prisma.supplier.findUnique({ where: { id } });
     if (!supplier) {
       return NextResponse.json({ error: "Supplier not found" }, { status: 404 });
@@ -25,15 +26,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
     const { name, contact, phone, email, address } = await request.json();
 
     if (!name) {
@@ -71,15 +73,16 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
   const user = await getAuthenticatedUser(request);
   if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(resolvedParams.id);
 
     const existing = await prisma.supplier.findUnique({ where: { id } });
     if (!existing) {
