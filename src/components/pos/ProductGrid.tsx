@@ -56,6 +56,39 @@ export default function ProductGrid() {
     fetchCategories();
   }, []);
 
+  const handleSearchEnter = async () => {
+    const currentSearch = search.trim();
+    if (!currentSearch) return;
+
+    // 1. If products are already fetched, not loading, and match is available in state, use it
+    if (!loadingProducts && products.length > 0) {
+      const productToAdd = products.find((p) => p.stock > 0);
+      if (productToAdd) {
+        addItem(productToAdd);
+        setSearch("");
+        return;
+      }
+    }
+
+    // 2. Otherwise, perform a quick direct fetch to catch any pending scans or state updates
+    try {
+      const url = `/api/products?query=${encodeURIComponent(currentSearch)}&categoryId=${selectedCatId}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const productToAdd = data.find((p: any) => p.stock > 0);
+          if (productToAdd) {
+            addItem(productToAdd);
+            setSearch("");
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error adding product on Enter key:", err);
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
       {/* Search Bar */}
@@ -68,6 +101,12 @@ export default function ProductGrid() {
           placeholder="Search products by name or SKU code..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSearchEnter();
+            }
+          }}
           className="block w-full pl-11 pr-4 py-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-sm shadow-sm"
         />
       </div>

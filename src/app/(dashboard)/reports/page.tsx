@@ -7,7 +7,8 @@ import {
 } from "recharts";
 import { 
   Calendar, DollarSign, TrendingUp, ShoppingBag, 
-  Activity, ArrowDownRight, ArrowUpRight, FileText, Download 
+  Activity, ArrowDownRight, ArrowUpRight, FileText, Download,
+  PieChart as PieIcon
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 
@@ -192,7 +193,7 @@ export default function ReportsPage() {
                       <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
                       <RechartsTooltip 
                         contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                        formatter={(value: number) => formatCurrency(value)}
+                        formatter={(value: any) => formatCurrency(Number(value))}
                       />
                       <Legend />
                       <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#6366f1" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
@@ -208,7 +209,7 @@ export default function ReportsPage() {
             {/* Sales By Category Pie Chart */}
             <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center gap-2">
-                <PieChart className="text-violet-600" size={20} /> Sales by Category
+                <PieIcon className="text-violet-600" size={20} /> Sales by Category
               </h3>
               <div className="h-64 w-full">
                 {data.salesByCategory.length > 0 ? (
@@ -228,7 +229,7 @@ export default function ReportsPage() {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <RechartsTooltip formatter={(value: number) => formatCurrency(value)} />
+                      <RechartsTooltip formatter={(value: any) => formatCurrency(Number(value))} />
                       <Legend layout="horizontal" verticalAlign="bottom" align="center" />
                     </PieChart>
                   </ResponsiveContainer>
@@ -251,7 +252,7 @@ export default function ReportsPage() {
                       <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `$${val}`} />
                       <YAxis dataKey="cashier" type="category" width={100} stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                       <RechartsTooltip 
-                        formatter={(value: number) => formatCurrency(value)}
+                        formatter={(value: any) => formatCurrency(Number(value))}
                         cursor={{ fill: 'transparent' }}
                       />
                       <Bar dataKey="revenue" name="Revenue" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={32} />
