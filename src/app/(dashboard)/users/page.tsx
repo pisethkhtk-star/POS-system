@@ -12,7 +12,7 @@ const emptyForm = { name: "", email: "", password: "", role: "CASHIER" };
 export default function UsersPage() {
   const { user } = useAuthStore();
   const router = useRouter();
-  
+
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -29,16 +29,16 @@ export default function UsersPage() {
     setLoading(false);
   }, [router]);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (user && user.role === "ADMIN") {
-      fetchUsers(); 
+      fetchUsers();
     } else if (user && user.role !== "ADMIN") {
       router.replace("/");
     }
   }, [fetchUsers, user, router]);
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setError(""); setShowModal(true); };
-  
+
   const openEdit = (u: User) => {
     setEditing(u);
     setForm({ name: u.name, email: u.email, password: "", role: u.role });
@@ -49,10 +49,10 @@ export default function UsersPage() {
     e.preventDefault(); setSaving(true); setError("");
     const url = editing ? `/api/users/${editing.id}` : "/api/users";
     const method = editing ? "PUT" : "POST";
-    const res = await fetch(url, { 
-      method, 
-      headers: { "Content-Type": "application/json" }, 
-      body: JSON.stringify(form) 
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || "Failed to save user"); setSaving(false); return; }
@@ -109,11 +109,10 @@ export default function UsersPage() {
                     <td className="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">{u.name}</td>
                     <td className="px-4 py-3 text-slate-500">{u.email}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        u.role === "ADMIN" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" :
-                        u.role === "MANAGER" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
-                        "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${u.role === "ADMIN" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" :
+                          u.role === "MANAGER" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
+                            "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                        }`}>
                         {u.role}
                       </span>
                     </td>
@@ -144,19 +143,19 @@ export default function UsersPage() {
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {error && <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 rounded-xl text-sm">{error}</div>}
-              
+
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Full Name *</label>
                 <input type="text" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                   className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Email Address *</label>
                 <input type="email" required value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                   className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Password {editing ? "(Leave blank to keep current)" : "*"}</label>
                 <input type="password" required={!editing} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
@@ -165,8 +164,8 @@ export default function UsersPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Assign Role *</label>
-                <select 
-                  value={form.role} 
+                <select
+                  value={form.role}
                   onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
                   className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
                 >

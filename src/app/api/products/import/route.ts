@@ -30,21 +30,28 @@ export async function POST(request: NextRequest) {
     categories.forEach((c) => categoryCache.set(c.name.toLowerCase(), c.id));
 
     for (const item of products) {
-      const { name, sku, price, cost, stock, minStock, categoryName } = item;
+      const { name, code, sku, price, cost, stock, minStock, categoryName } = item;
+      const activeCode = String(code || sku || "").trim();
 
-      if (!name || !sku || !price || !cost || !categoryName) {
-        results.errors.push(`Row with SKU ${sku || "unknown"}: Missing required columns.`);
+      if (!name || !activeCode || !price || !cost || !categoryName) {
+        results.errors.push(`Row with Code ${activeCode || "unknown"}: Missing required columns.`);
         results.skipped++;
         continue;
       }
 
-      // Check if SKU exists
+      if (activeCode.length > 14) {
+        results.errors.push(`Code ${activeCode} exceeds the maximum limit of 14 characters, skipped.`);
+        results.skipped++;
+        continue;
+      }
+
+      // Check if Code exists
       const exists = await prisma.product.findUnique({
-        where: { sku: String(sku).trim() },
+        where: { code: activeCode },
       });
 
       if (exists) {
-        results.errors.push(`SKU ${sku} already exists, skipped.`);
+        results.errors.push(`Code ${activeCode} already exists, skipped.`);
         results.skipped++;
         continue;
       }
@@ -72,7 +79,7 @@ export async function POST(request: NextRequest) {
           const prod = await tx.product.create({
             data: {
               name: String(name).trim(),
-              sku: String(sku).trim(),
+              code: activeCode,
               price: parsedPrice,
               cost: parsedCost,
               stock: parsedStock,
@@ -98,7 +105,7 @@ export async function POST(request: NextRequest) {
 
         results.success++;
       } catch (txErr: any) {
-        results.errors.push(`SKU ${sku}: Failed to save to database. Error: ${txErr.message}`);
+        results.errors.push(`Code ${activeCode}: Failed to save to database. Error: ${txErr.message}`);
         results.skipped++;
       }
     }

@@ -45,7 +45,7 @@ export async function PUT(
 
   try {
     const id = parseInt(resolvedParams.id);
-    const { name, sku, price, cost, stock, minStock, image, categoryId } =
+    const { name, code, sku, price, cost, stock, minStock, image, categoryId } =
       await request.json();
 
     const existingProduct = await prisma.product.findUnique({
@@ -56,14 +56,22 @@ export async function PUT(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Check SKU unique conflict
-    if (sku && sku !== existingProduct.sku) {
-      const skuConflict = await prisma.product.findUnique({
-        where: { sku },
-      });
-      if (skuConflict) {
+    const activeCode = (code !== undefined ? code : sku !== undefined ? sku : undefined)?.trim();
+
+    // Check code unique conflict
+    if (activeCode && activeCode !== existingProduct.code) {
+      if (activeCode.length > 14) {
         return NextResponse.json(
-          { error: "SKU code is already used by another product" },
+          { error: "Product code cannot exceed 14 characters" },
+          { status: 400 }
+        );
+      }
+      const codeConflict = await prisma.product.findUnique({
+        where: { code: activeCode },
+      });
+      if (codeConflict) {
+        return NextResponse.json(
+          { error: "Product code is already used by another product" },
           { status: 400 }
         );
       }
@@ -84,7 +92,7 @@ export async function PUT(
         where: { id },
         data: {
           name: name || existingProduct.name,
-          sku: sku || existingProduct.sku,
+          code: activeCode !== undefined ? activeCode : existingProduct.code,
           price: isNaN(parsedPrice) ? existingProduct.price : parsedPrice,
           cost: isNaN(parsedCost) ? existingProduct.cost : parsedCost,
           stock: newStock,

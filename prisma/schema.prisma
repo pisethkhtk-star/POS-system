@@ -39,7 +39,7 @@ model Category {
 model Product {
   id            Int            @id @default(autoincrement())
   name          String
-  sku           String         @unique
+  code          String         @unique
   price         Decimal        @db.Decimal(10, 2)
   cost          Decimal        @db.Decimal(10, 2)
   stock         Int            @default(0)
@@ -187,3 +187,14 @@ model PurchaseItem {
 
   @@map("purchase_items")
 }
+
+model RolePermission {
+  id        Int      @id @default(autoincrement())
+  role      Role     @unique
+  pages     String[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("role_permissions")
+}
+

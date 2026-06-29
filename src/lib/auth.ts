@@ -9,6 +9,7 @@ export interface JWTPayload {
   email: string;
   name: string;
   role: "ADMIN" | "MANAGER" | "CASHIER";
+  permissions: string[];
 }
 
 export async function signJWT(payload: JWTPayload): Promise<string> {

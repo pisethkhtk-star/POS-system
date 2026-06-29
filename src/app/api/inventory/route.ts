@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const logs = await prisma.inventoryLog.findMany({
       include: {
         product: {
-          select: { name: true, sku: true, stock: true },
+          select: { name: true, code: true, stock: true },
         },
         user: {
           select: { name: true },

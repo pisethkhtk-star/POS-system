@@ -24,6 +24,7 @@ import {
   Tags,
   UserCog,
   Ticket,
+  Shield,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -110,6 +111,12 @@ export default function Sidebar() {
       roles: ["ADMIN"],
     },
     {
+      name: "Role Permissions",
+      href: "/roles",
+      icon: Shield,
+      roles: ["ADMIN"],
+    },
+    {
       name: "Settings",
       href: "/settings",
       icon: SettingsIcon,
@@ -118,7 +125,7 @@ export default function Sidebar() {
   ];
 
   const allowedMenuItems = menuItems.filter((item) =>
-    item.roles.includes(user.role)
+    user.permissions ? user.permissions.includes(item.href) : item.roles.includes(user.role)
   );
 
   return (

@@ -2,6 +2,35 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyJWT } from "./lib/auth";
 
+function getMatchedPermissionPath(pathname: string): string | null {
+  if (pathname === "/") return "/";
+
+  // List of all protected section prefixes
+  const paths = [
+    "/pos",
+    "/products",
+    "/categories",
+    "/discounts",
+    "/inventory",
+    "/purchases",
+    "/suppliers",
+    "/customers",
+    "/orders",
+    "/reports",
+    "/users",
+    "/settings",
+    "/roles",
+  ];
+
+  for (const path of paths) {
+    if (pathname === path || pathname.startsWith(path + "/")) {
+      return path;
+    }
+  }
+
+  return null;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -25,27 +54,24 @@ export async function proxy(request: NextRequest) {
 
   // 3. Redirect logged-in users away from /login
   if (user && pathname === "/login") {
-    if (user.role === "CASHIER") {
-      return NextResponse.redirect(new URL("/pos", request.url));
-    }
-    return NextResponse.redirect(new URL("/", request.url));
+    const permissions = user.permissions || [];
+    const firstAllowed = permissions[0] || (user.role === "CASHIER" ? "/pos" : "/");
+    return NextResponse.redirect(new URL(firstAllowed, request.url));
   }
 
-  // 4. Role-based route protection
+  // 4. Dynamic route permission check
   if (user) {
-    // Cashiers cannot access the admin dashboard, products list, reports, etc.
-    // They are restricted to the POS terminal page (/pos)
-    const adminPages = ["/products", "/inventory", "/orders", "/customers", "/suppliers", "/reports", "/settings", "/discounts"];
-    const isDashboardRoot = pathname === "/";
-    const isAdminPage = adminPages.some((page) => pathname.startsWith(page));
+    const permissions = user.permissions || [];
+    const matchedPath = getMatchedPermissionPath(pathname);
 
-    if (user.role === "CASHIER" && (isDashboardRoot || isAdminPage)) {
-      return NextResponse.redirect(new URL("/pos", request.url));
-    }
-
-    // Reports page is ADMIN only
-    if (pathname.startsWith("/reports") && user.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (matchedPath && !permissions.includes(matchedPath)) {
+      // User is not allowed to access this page. Redirect to their first allowed page.
+      const firstAllowed = permissions[0] || (user.role === "CASHIER" ? "/pos" : "/");
+      
+      // Prevent infinite redirect loop
+      if (firstAllowed !== pathname) {
+        return NextResponse.redirect(new URL(firstAllowed, request.url));
+      }
     }
   }
 

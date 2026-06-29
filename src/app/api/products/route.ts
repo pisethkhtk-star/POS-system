@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (query) {
       where.OR = [
         { name: { contains: query, mode: "insensitive" } },
-        { sku: { contains: query, mode: "insensitive" } },
+        { code: { contains: query, mode: "insensitive" } },
       ];
     }
 
@@ -51,23 +51,53 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { name, sku, price, cost, stock, minStock, image, categoryId } =
+    const { name, code, sku, price, cost, stock, minStock, image, categoryId } =
       await request.json();
 
-    if (!name || !sku || !price || !cost || categoryId === undefined) {
+    if (!name || !price || !cost || categoryId === undefined) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
+    let finalCode = (code || sku || "").trim();
+
+    if (!finalCode) {
+      // Auto-generate 14-digit numeric code
+      const existingProducts = await prisma.product.findMany({
+        select: { code: true }
+      });
+      const numericCodes = existingProducts
+        .map(p => {
+          if (/^\d{14}$/.test(p.code)) {
+            return parseInt(p.code, 10);
+          }
+          return null;
+        })
+        .filter((val): val is number => val !== null);
+
+      const nextCodeNum = numericCodes.length > 0 ?
+        numericCodes.reduce((max, val) => val > max ? val : max, 0) + 1 :
+        1;
+
+      finalCode = nextCodeNum.toString().padStart(14, '0');
+    }
+
+    if (finalCode.length > 14) {
+      return NextResponse.json(
+        { error: "Product code cannot exceed 14 characters" },
+        { status: 400 }
+      );
+    }
+
     const exists = await prisma.product.findUnique({
-      where: { sku },
+      where: { code: finalCode },
     });
 
     if (exists) {
       return NextResponse.json(
-        { error: "Product SKU already exists" },
+        { error: "Product code already exists" },
         { status: 400 }
       );
     }
@@ -83,7 +113,7 @@ export async function POST(request: NextRequest) {
       const prod = await tx.product.create({
         data: {
           name,
-          sku,
+          code: finalCode,
           price: parsedPrice,
           cost: parsedCost,
           stock: parsedStock,

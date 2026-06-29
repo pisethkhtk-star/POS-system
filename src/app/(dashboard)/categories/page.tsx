@@ -12,7 +12,7 @@ const emptyForm = { name: "" };
 export default function CategoriesPage() {
   const { user } = useAuthStore();
   const router = useRouter();
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -26,20 +26,20 @@ export default function CategoriesPage() {
     setLoading(true);
     const res = await fetch("/api/categories");
     if (res.ok) setCategories(await res.json());
-    else if (res.status === 403 || res.status === 401) router.replace("/"); 
+    else if (res.status === 403 || res.status === 401) router.replace("/");
     setLoading(false);
   }, [router]);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (user && (user.role === "ADMIN" || user.role === "MANAGER")) {
-      fetchCategories(); 
+      fetchCategories();
     } else if (user) {
       router.replace("/");
     }
   }, [fetchCategories, user, router]);
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setError(""); setShowModal(true); };
-  
+
   const openEdit = (c: Category) => {
     setEditing(c);
     setForm({ name: c.name });
@@ -51,10 +51,10 @@ export default function CategoriesPage() {
     const url = editing ? `/api/categories/${editing.id}` : "/api/categories";
     const method = editing ? "PUT" : "POST";
     const body = { name: form.name };
-    const res = await fetch(url, { 
-      method, 
-      headers: { "Content-Type": "application/json" }, 
-      body: JSON.stringify(body) 
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || "Failed to save category"); setSaving(false); return; }
@@ -133,7 +133,7 @@ export default function CategoriesPage() {
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {error && <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 rounded-xl text-sm">{error}</div>}
-              
+
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Category Name *</label>
                 <input type="text" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}

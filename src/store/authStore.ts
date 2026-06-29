@@ -5,6 +5,7 @@ interface UserProfile {
   name: string;
   email: string;
   role: "ADMIN" | "MANAGER" | "CASHIER";
+  permissions?: string[];
 }
 
 interface AuthState {

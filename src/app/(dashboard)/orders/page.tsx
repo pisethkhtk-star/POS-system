@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ClipboardList, Search, ChevronDown, Eye, X, Loader2, Package, Download } from "lucide-react";
 
-interface OrderItem { id: number; quantity: number; price: number; subtotal: number; product: { name: string; sku: string }; }
+interface OrderItem { id: number; quantity: number; price: number; subtotal: number; product: { name: string; code: string }; }
 interface Order {
   id: number; orderNumber: string; status: string;
   subtotal: number; discount: number; tax: number; total: number;

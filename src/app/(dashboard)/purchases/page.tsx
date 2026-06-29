@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 interface Supplier { id: number; name: string; }
-interface Product { id: number; name: string; sku: string; cost: number; stock: number; }
+interface Product { id: number; name: string; code: string; cost: number; stock: number; }
 interface PurchaseItem { id: number; product: Product; quantity: number; cost: number; subtotal: number; }
 interface Purchase {
   id: number; reference: string; totalAmount: number; note: string;
@@ -224,7 +224,7 @@ export default function PurchasesPage() {
                         <div className="flex-1">
                           <select value={item.productId} onChange={e => handleProductSelect(index, e.target.value)} required className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
                             <option value="">Select Product...</option>
-                            {products.map(p => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
+                            {products.map(p => <option key={p.id} value={p.id}>{p.name} ({p.code})</option>)}
                           </select>
                         </div>
                         <div className="w-24">

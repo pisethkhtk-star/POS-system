@@ -251,7 +251,7 @@ export default function CartPanel({ onCheckoutClick }: CartPanelProps) {
                 <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title={item.name}>
                   {item.name}
                 </h4>
-                <p className="text-[10px] text-slate-400 font-semibold mb-2">{item.sku}</p>
+                <p className="text-[10px] text-slate-400 font-semibold mb-2">{item.code}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-slate-900 dark:text-white font-mono">
                     ${(item.price * item.quantity).toFixed(2)}

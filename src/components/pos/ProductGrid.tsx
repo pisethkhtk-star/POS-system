@@ -98,7 +98,7 @@ export default function ProductGrid() {
         </div>
         <input
           type="text"
-          placeholder="Search products by name or SKU code..."
+          placeholder="Search products by name or code..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => {
@@ -211,7 +211,7 @@ export default function ProductGrid() {
                   <div className="p-3 flex-1 flex flex-col justify-between">
                     <div>
                       <p className="text-xs font-semibold text-slate-400 tracking-wider mb-0.5 truncate uppercase">
-                        {product.sku}
+                        {product.code || product.sku}
                       </p>
                       <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 line-clamp-2 leading-tight">
                         {product.name}

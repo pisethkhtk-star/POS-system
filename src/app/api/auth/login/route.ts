@@ -33,11 +33,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch permissions for this role
+    const rolePerm = await prisma.rolePermission.findUnique({
+      where: { role: user.role },
+    });
+
+    // Default fallback permissions if not found in db
+    let permissions = rolePerm?.pages;
+    if (!permissions) {
+      if (user.role === "ADMIN") {
+        permissions = ["/", "/pos", "/products", "/categories", "/discounts", "/inventory", "/purchases", "/suppliers", "/customers", "/orders", "/reports", "/users", "/settings", "/roles"];
+      } else if (user.role === "MANAGER") {
+        permissions = ["/", "/pos", "/products", "/categories", "/discounts", "/inventory", "/purchases", "/suppliers", "/customers", "/orders"];
+      } else {
+        permissions = ["/pos"];
+      }
+    }
+
     const token = await signJWT({
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
+      permissions,
     });
 
     const response = NextResponse.json({
@@ -46,6 +64,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        permissions,
       },
     });
 

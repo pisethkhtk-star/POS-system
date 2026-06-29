@@ -3,7 +3,7 @@ import { create } from "zustand";
 export interface CartItem {
   id: number;
   name: string;
-  sku: string;
+  code: string;
   price: number;
   cost: number;
   quantity: number;
@@ -53,7 +53,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   selectedCustomer: null,
   selectedDiscount: null,
   taxRate: 10, // Default 10%
-  taxEnabled: true, // Default true
+  taxEnabled: false, // Default false
   addItem: (product) => {
     const items = get().cartItems;
     const existing = items.find((item) => item.id === product.id);
@@ -77,7 +77,7 @@ export const useCartStore = create<CartState>((set, get) => ({
           {
             id: product.id,
             name: product.name,
-            sku: product.sku,
+            code: product.code || product.sku,
             price: Number(product.price),
             cost: Number(product.cost),
             quantity: 1,

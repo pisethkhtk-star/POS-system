@@ -8,13 +8,13 @@ import {
 
 interface Category { id: number; name: string; icon?: string; }
 interface Product {
-  id: number; name: string; sku: string;
+  id: number; name: string; code: string;
   price: number; cost: number; stock: number; minStock: number;
   image?: string; categoryId: number;
   category: Category;
 }
 
-const emptyForm = { name: "", sku: "", price: "", cost: "", stock: "", minStock: "5", image: "", categoryId: "" };
+const emptyForm = { name: "", code: "", price: "", cost: "", stock: "", minStock: "5", image: "", categoryId: "" };
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -53,7 +53,7 @@ export default function ProductsPage() {
     setEditing(p);
     setImageFile(null);
     setImagePreview(p.image || "");
-    setForm({ name: p.name, sku: p.sku, price: String(p.price), cost: String(p.cost), stock: String(p.stock), minStock: String(p.minStock), image: p.image || "", categoryId: String(p.categoryId) });
+    setForm({ name: p.name, code: p.code, price: String(p.price), cost: String(p.cost), stock: String(p.stock), minStock: String(p.minStock), image: p.image || "", categoryId: String(p.categoryId) });
     setError(""); setShowModal(true);
   };
 
@@ -110,7 +110,7 @@ export default function ProductsPage() {
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-52">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input type="text" placeholder="Search by name or SKU..." value={query} onChange={e => setQuery(e.target.value)}
+          <input type="text" placeholder="Search by name or code..." value={query} onChange={e => setQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
         </div>
         <div className="relative">
@@ -136,7 +136,7 @@ export default function ProductsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
-                  {["Product", "SKU", "Category", "Price", "Cost", "Stock", ""].map(h => (
+                  {["Product", "Code", "Category", "Price", "Cost", "Stock", ""].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -145,7 +145,7 @@ export default function ProductsPage() {
                 {products.map(p => (
                   <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">{p.name}</td>
-                    <td className="px-4 py-3 font-mono text-slate-500 text-xs">{p.sku}</td>
+                    <td className="px-4 py-3 font-mono text-slate-500 text-xs">{p.code}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">{p.category.name}</span>
                     </td>
@@ -181,7 +181,7 @@ export default function ProductsPage() {
             <form onSubmit={handleSave} className="p-6 space-y-4">
               {error && <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 rounded-xl text-sm">{error}</div>}
               <div className="grid grid-cols-2 gap-4">
-                {[{ label: "Product Name", key: "name", type: "text", full: true }, { label: "SKU", key: "sku", type: "text" }, { label: "Category", key: "categoryId", type: "select" }, { label: "Price ($)", key: "price", type: "number" }, { label: "Cost ($)", key: "cost", type: "number" }, { label: "Stock", key: "stock", type: "number" }, { label: "Min Stock", key: "minStock", type: "number" }, { label: "Product Image", key: "image", type: "file", full: true }].map(f => (
+                {[{ label: "Product Name", key: "name", type: "text", full: true }, { label: "Code", key: "code", type: "text" }, { label: "Category", key: "categoryId", type: "select" }, { label: "Price ($)", key: "price", type: "number" }, { label: "Cost ($)", key: "cost", type: "number" }, { label: "Stock", key: "stock", type: "number" }, { label: "Min Stock", key: "minStock", type: "number" }, { label: "Product Image", key: "image", type: "file", full: true }].map(f => (
                   <div key={f.key} className={f.full ? "col-span-2" : ""}>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">{f.label}</label>
                     {f.type === "select" ? (
@@ -227,7 +227,7 @@ export default function ProductsPage() {
                           className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
                       </div>
                     ) : (
-                      <input type={f.type} required={f.key !== "image"} value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} step={f.type === "number" ? "0.01" : undefined}
+                      <input type={f.type} required={f.key !== "image" && f.key !== "code"} maxLength={f.key === "code" ? 14 : undefined} value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} step={f.type === "number" ? "0.01" : undefined}
                         className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
                     )}
                   </div>

@@ -11,11 +11,11 @@ interface InventoryLog {
   afterQty: number | null;
   note: string | null;
   createdAt: string;
-  product: { name: string; sku: string; stock: number };
+  product: { name: string; code: string; stock: number };
   user: { name: string } | null;
 }
 
-interface Product { id: number; name: string; sku: string; stock: number; minStock: number; }
+interface Product { id: number; name: string; code: string; stock: number; minStock: number; }
 
 const typeBadge: Record<string, string> = {
   IN: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
@@ -49,7 +49,7 @@ export default function InventoryPage() {
 
   const filtered = logs.filter(l =>
     l.product.name.toLowerCase().includes(search.toLowerCase()) ||
-    l.product.sku.toLowerCase().includes(search.toLowerCase())
+    l.product.code.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleAdjust = async (e: React.FormEvent) => {
@@ -110,7 +110,7 @@ export default function InventoryPage() {
       {/* Search */}
       <div className="relative max-w-sm">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input type="text" placeholder="Filter by product name/SKU..." value={search} onChange={e => setSearch(e.target.value)}
+        <input type="text" placeholder="Filter by product name/code..." value={search} onChange={e => setSearch(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
       </div>
 
@@ -123,7 +123,7 @@ export default function InventoryPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
-                  {["Product", "SKU", "Type", "Qty", "Before", "After", "Note", "By", "Date"].map(h => (
+                  {["Product", "Code", "Type", "Qty", "Before", "After", "Note", "By", "Date"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -132,7 +132,7 @@ export default function InventoryPage() {
                 {filtered.map(log => (
                   <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{log.product.name}</td>
-                    <td className="px-4 py-3 font-mono text-slate-400 text-xs">{log.product.sku}</td>
+                    <td className="px-4 py-3 font-mono text-slate-400 text-xs">{log.product.code}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${typeBadge[log.type]}`}>{log.type}</span>
                     </td>

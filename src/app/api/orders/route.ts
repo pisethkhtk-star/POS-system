@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         items: {
           include: {
             product: {
-              select: { name: true, sku: true },
+              select: { name: true, code: true },
             },
           },
         },
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
         user: { select: { name: true } },
         items: {
           include: {
-            product: { select: { name: true, sku: true } },
+            product: { select: { name: true, code: true } },
           },
         },
       },
