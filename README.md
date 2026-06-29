@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# POS System 🛒 (ប្រព័ន្ធគ្រប់គ្រងការលក់)
 
-## Getting Started
+This is a modern Point of Sale (POS) system built using **Next.js**, **Prisma ORM**, and **PostgreSQL**. It is designed to be plug-and-play, allowing developers to clone and run the application with minimal configuration.
 
-First, run the development server:
+---
 
+## 🚀 Quick Start for Windows (វិធីសាស្ត្រដំឡើងរហ័សសម្រាប់ Windows)
+
+If you are using Windows, we have provided automated setup scripts to make your life easy:
+
+### 1. Start PostgreSQL Database Service
+Ensure that PostgreSQL is installed on your computer. To start the database service:
+* Right-click on [start-postgres.bat](file:///d:/BBU/Project/POS_clone/POS-system/start-postgres.bat) and choose **"Run as administrator"**.
+
+### 2. Run Setup Wizard
+To install dependencies, copy environment configurations, create the database, run migrations, and seed sample data:
+* Double-click on [setup.bat](file:///d:/BBU/Project/POS_clone/POS-system/setup.bat).
+* *Note: The script will automatically copy `.env.example` to `.env` and prompt you for your PostgreSQL password if needed.*
+
+### 3. Run Development Server
+Once setup is complete, you can start the application:
+* Double-click on [start.bat](file:///d:/BBU/Project/POS_clone/POS-system/start.bat).
+* Open your browser and go to [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🛠️ Manual Installation (សម្រាប់ macOS / Linux ឬ ដំឡើងដោយខ្លួនឯង)
+
+If you prefer to configure the system manually, follow these steps:
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment Variables
+Copy the template environment file:
+```bash
+cp .env.example .env
+```
+Open the `.env` file and update your PostgreSQL connection URL:
+```text
+DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>?schema=public"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Setup Database Schema & Seed Data
+Push the schema to your database and seed it with initial setup data (like default admin users, categories, products, etc.):
+```bash
+npx prisma db push --force-reset
+npx prisma db seed
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Tech Stack
+* **Framework:** Next.js (App Router)
+* **Database & ORM:** PostgreSQL & Prisma
+* **Styling:** Vanilla CSS & Tailwind CSS
+* **State Management:** Zustand
+* **Authentication:** JSON Web Tokens (JWT) / NextAuth
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📂 Project Structure
+* `/prisma/`: Contains database schemas (`schema.prisma`) and seed script (`seed.ts`).
+* `/scripts/`: Setup scripts for automated deployment helper.
+* `/src/app/api/`: REST APIs for discounts, customers, categories, etc.
+* `setup.bat`: Automatic setup batch script for Windows.
+* `start.bat`: Dev server startup script for Windows.
