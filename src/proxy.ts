@@ -35,7 +35,7 @@ export async function proxy(request: NextRequest) {
   if (user) {
     // Cashiers cannot access the admin dashboard, products list, reports, etc.
     // They are restricted to the POS terminal page (/pos)
-    const adminPages = ["/products", "/inventory", "/orders", "/customers", "/suppliers", "/reports", "/settings"];
+    const adminPages = ["/products", "/inventory", "/orders", "/customers", "/suppliers", "/reports", "/settings", "/discounts"];
     const isDashboardRoot = pathname === "/";
     const isAdminPage = adminPages.some((page) => pathname.startsWith(page));
 

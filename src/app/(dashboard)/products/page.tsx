@@ -26,6 +26,7 @@ export default function ProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -47,10 +48,11 @@ export default function ProductsPage() {
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
   useEffect(() => { fetchCategories(); }, []);
 
-  const openAdd = () => { setEditing(null); setForm(emptyForm); setImageFile(null); setError(""); setShowModal(true); };
+  const openAdd = () => { setEditing(null); setForm(emptyForm); setImageFile(null); setImagePreview(""); setError(""); setShowModal(true); };
   const openEdit = (p: Product) => {
     setEditing(p);
     setImageFile(null);
+    setImagePreview(p.image || "");
     setForm({ name: p.name, sku: p.sku, price: String(p.price), cost: String(p.cost), stock: String(p.stock), minStock: String(p.minStock), image: p.image || "", categoryId: String(p.categoryId) });
     setError(""); setShowModal(true);
   };
@@ -189,11 +191,41 @@ export default function ProductsPage() {
                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </select>
                     ) : f.type === "file" ? (
-                      <input type="file" accept="image/*" onChange={e => {
-                        const file = e.target.files?.[0];
-                        if (file) setImageFile(file);
-                      }}
-                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+                      <div className="space-y-2">
+                        {imagePreview ? (
+                          <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 group">
+                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setImageFile(null);
+                                setImagePreview("");
+                                setForm(p => ({ ...p, image: "" }));
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow-md transition-colors cursor-pointer"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-24 h-24 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 text-slate-400">
+                            <ShoppingBag size={20} className="opacity-40 mb-1" />
+                            <span className="text-[10px] font-medium">No Image</span>
+                          </div>
+                        )}
+                        <input type="file" accept="image/*" onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setImageFile(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setImagePreview(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                          className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
+                      </div>
                     ) : (
                       <input type={f.type} required={f.key !== "image"} value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} step={f.type === "number" ? "0.01" : undefined}
                         className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />

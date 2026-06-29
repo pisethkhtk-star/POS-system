@@ -30,12 +30,14 @@ interface CartState {
   selectedCustomer: Customer | null;
   selectedDiscount: Discount | null;
   taxRate: number;
+  taxEnabled: boolean;
   addItem: (product: any) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, qty: number) => void;
   selectCustomer: (customer: Customer | null) => void;
   selectDiscount: (discount: Discount | null) => void;
   setTaxRate: (rate: number) => void;
+  setTaxEnabled: (enabled: boolean) => void;
   clearCart: () => void;
   // Computed totals
   getTotals: () => {
@@ -51,6 +53,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   selectedCustomer: null,
   selectedDiscount: null,
   taxRate: 10, // Default 10%
+  taxEnabled: true, // Default true
   addItem: (product) => {
     const items = get().cartItems;
     const existing = items.find((item) => item.id === product.id);
@@ -107,12 +110,14 @@ export const useCartStore = create<CartState>((set, get) => ({
   selectCustomer: (customer) => set({ selectedCustomer: customer }),
   selectDiscount: (discount) => set({ selectedDiscount: discount }),
   setTaxRate: (rate) => set({ taxRate: rate }),
+  setTaxEnabled: (enabled) => set({ taxEnabled: enabled }),
   clearCart: () =>
     set({ cartItems: [], selectedCustomer: null, selectedDiscount: null }),
   getTotals: () => {
     const items = get().cartItems;
     const discount = get().selectedDiscount;
     const taxRate = get().taxRate;
+    const taxEnabled = get().taxEnabled;
 
     const subtotal = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -129,7 +134,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
 
     const discountedSubtotal = Math.max(0, subtotal - discountValue);
-    const taxValue = discountedSubtotal * (taxRate / 100);
+    const taxValue = taxEnabled ? discountedSubtotal * (taxRate / 100) : 0;
     const total = discountedSubtotal + taxValue;
 
     return {

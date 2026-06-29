@@ -23,6 +23,7 @@ import {
   Moon,
   Tags,
   UserCog,
+  Ticket,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -61,6 +62,12 @@ export default function Sidebar() {
       roles: ["ADMIN", "MANAGER"],
     },
     {
+      name: "Discounts",
+      href: "/discounts",
+      icon: Ticket,
+      roles: ["ADMIN", "MANAGER"],
+    },
+    {
       name: "Inventory",
       href: "/inventory",
       icon: Warehouse,
@@ -73,9 +80,9 @@ export default function Sidebar() {
       roles: ["ADMIN", "MANAGER"],
     },
     {
-      name: "Orders",
-      href: "/orders",
-      icon: ClipboardList,
+      name: "Suppliers",
+      href: "/suppliers",
+      icon: Truck,
       roles: ["ADMIN", "MANAGER"],
     },
     {
@@ -85,21 +92,21 @@ export default function Sidebar() {
       roles: ["ADMIN", "MANAGER"],
     },
     {
-      name: "Suppliers",
-      href: "/suppliers",
-      icon: Truck,
+      name: "Orders",
+      href: "/orders",
+      icon: ClipboardList,
       roles: ["ADMIN", "MANAGER"],
-    },
-    {
-      name: "Users",
-      href: "/users",
-      icon: UserCog,
-      roles: ["ADMIN"],
     },
     {
       name: "Reports",
       href: "/reports",
       icon: BarChart3,
+      roles: ["ADMIN"],
+    },
+    {
+      name: "Users",
+      href: "/users",
+      icon: UserCog,
       roles: ["ADMIN"],
     },
     {

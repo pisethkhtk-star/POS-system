@@ -103,7 +103,7 @@ export default function Receipt({ order, settings, onClose }: ReceiptProps) {
                 </div>
               )}
               <div className="flex justify-between">
-                <span>TAX ({settings?.taxRate || 10}%):</span>
+                <span>TAX ({Number(order.tax) === 0 ? 0 : (settings?.taxRate || 10)}%):</span>
                 <span>${Number(order.tax).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-xs font-bold pt-1 border-t border-slate-200">

@@ -8,8 +8,6 @@ interface CartPanelProps {
   onCheckoutClick: () => void;
 }
 
-const taxRate = Number(process.env.NEXT_PUBLIC_TAX_RATE ?? 10);
-
 export default function CartPanel({ onCheckoutClick }: CartPanelProps) {
   const {
     cartItems,
@@ -21,6 +19,10 @@ export default function CartPanel({ onCheckoutClick }: CartPanelProps) {
     selectDiscount,
     clearCart,
     getTotals,
+    taxRate,
+    setTaxRate,
+    taxEnabled,
+    setTaxEnabled,
   } = useCartStore();
 
   const { subtotal, discountValue, taxValue, total } = getTotals();
@@ -355,8 +357,33 @@ export default function CartPanel({ onCheckoutClick }: CartPanelProps) {
             </div>
           )}
 
-          <div className="flex justify-between">
-            <span>Tax ({taxRate}%):</span>
+          <div className="flex items-center justify-between py-0.5">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="pos-tax-toggle"
+                checked={taxEnabled}
+                onChange={(e) => setTaxEnabled(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-350 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+              />
+              <label htmlFor="pos-tax-toggle" className="text-slate-600 dark:text-slate-400 select-none cursor-pointer font-medium">
+                Tax
+              </label>
+              {taxEnabled && (
+                <div className="flex items-center border border-slate-200 dark:border-slate-800 rounded px-1.5 py-0.5 bg-slate-50 dark:bg-slate-950">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    value={taxRate}
+                    onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
+                    className="w-10 text-center bg-transparent border-none text-[11px] p-0 font-bold focus:ring-0 focus:outline-none text-slate-850 dark:text-slate-200"
+                  />
+                  <span className="text-[10px] text-slate-400 font-semibold select-none">%</span>
+                </div>
+              )}
+            </div>
             <span className="font-semibold text-slate-800 dark:text-slate-200">${taxValue.toFixed(2)}</span>
           </div>
 
